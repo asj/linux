@@ -478,6 +478,13 @@ static void print_a_device(struct seq_file *seq, struct btrfs_device *device,
 	rcu_read_unlock();
 	BTRFS_SEQ_PRINT("\t\tMAJ:MIN\t\t%u:", MAJOR(device->devt));
 	BTRFS_SEQ_PRINT("%u\n", MINOR(device->devt));
+
+	if (device->bdev) {
+		BTRFS_SEQ_PRINT("\t\tMAJ:MIN bdev\t%u:",
+						MAJOR((device->bdev)->bd_dev));
+		BTRFS_SEQ_PRINT("%u\n", MINOR((device->bdev)->bd_dev));
+	}
+
 	BTRFS_SEQ_PRINT("\t\tdevid:\t\t%llu\n", device->devid);
 	BTRFS_SEQ_PRINT("\t\tgeneration:\t%llu\n", device->generation);
 	BTRFS_SEQ_PRINT("\t\ttotal_bytes:\t%llu\n", device->total_bytes);
