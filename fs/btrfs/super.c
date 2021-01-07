@@ -61,6 +61,7 @@
 #include "extent-tree.h"
 #define CREATE_TRACE_POINTS
 #include <trace/events/btrfs.h>
+#include "procfs.h"
 
 static const struct super_operations btrfs_super_ops;
 static struct file_system_type btrfs_fs_type;
@@ -2467,6 +2468,9 @@ static const struct init_sequence mod_init_seq[] = {
 	}, {
 		.init_func = btrfs_init_sysfs,
 		.exit_func = btrfs_exit_sysfs,
+	}, {
+		.init_func = btrfs_init_procfs,
+		.exit_func = btrfs_exit_procfs,
 	}, {
 		.init_func = btrfs_init_compress,
 		.exit_func = btrfs_exit_compress,
