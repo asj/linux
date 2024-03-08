@@ -515,7 +515,7 @@ error:
  *		-EBUSY if @devt is a mounted device.
  *		-ENOENT if @devt does not match any device in the list.
  */
-static int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device)
+int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device)
 {
 	struct btrfs_fs_devices *fs_devices, *tmp_fs_devices;
 	struct btrfs_device *device, *tmp_device;
