@@ -1391,6 +1391,8 @@ struct btrfs_device *btrfs_scan_one_device(const char *path, blk_mode_t flags,
 
 	lockdep_assert_held(&uuid_mutex);
 
+	btrfs_free_stale_devices(0, NULL, true);
+
 	/*
 	 * we would like to check all the supers, but that would make
 	 * a btrfs mount succeed after a mkfs from a different FS.
