@@ -515,7 +515,8 @@ error:
  *		-EBUSY if @devt is a mounted device.
  *		-ENOENT if @devt does not match any device in the list.
  */
-int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device)
+int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device,
+			     bool free_stray_single)
 {
 	struct btrfs_fs_devices *fs_devices, *tmp_fs_devices;
 	struct btrfs_device *device, *tmp_device;
@@ -529,6 +530,12 @@ int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device)
 	list_for_each_entry_safe(fs_devices, tmp_fs_devices, &fs_uuids, fs_list) {
 
 		mutex_lock(&fs_devices->device_list_mutex);
+
+		if (free_stray_single && fs_devices->total_devices != 1) {
+			mutex_unlock(&fs_devices->device_list_mutex);
+			continue;
+		}
+
 		list_for_each_entry_safe(device, tmp_device,
 					 &fs_devices->devices, dev_list) {
 			if (skip_device && skip_device == device)
@@ -1315,7 +1322,7 @@ int btrfs_forget_devices(dev_t devt)
 	int ret;
 
 	mutex_lock(&uuid_mutex);
-	ret = btrfs_free_stale_devices(devt, NULL);
+	ret = btrfs_free_stale_devices(devt, NULL, false);
 	mutex_unlock(&uuid_mutex);
 
 	return ret;
@@ -1424,7 +1431,7 @@ struct btrfs_device *btrfs_scan_one_device(const char *path, blk_mode_t flags,
 		pr_debug("BTRFS: skip registering single non-seed device %s (%d:%d)\n",
 			  path, MAJOR(devt), MINOR(devt));
 
-		btrfs_free_stale_devices(devt, NULL);
+		btrfs_free_stale_devices(devt, NULL, false);
 
 		device = NULL;
 		goto free_disk_super;
@@ -1432,7 +1439,7 @@ struct btrfs_device *btrfs_scan_one_device(const char *path, blk_mode_t flags,
 
 	device = device_list_add(path, disk_super, &new_device_added);
 	if (!IS_ERR(device) && new_device_added)
-		btrfs_free_stale_devices(device->devt, device);
+		btrfs_free_stale_devices(device->devt, device, false);
 
 free_disk_super:
 	btrfs_release_disk_super(disk_super);

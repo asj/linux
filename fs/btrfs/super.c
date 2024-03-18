@@ -1820,7 +1820,7 @@ static int btrfs_get_tree_super(struct fs_context *fc)
 
 	ret = btrfs_open_devices(fs_devices, mode, &btrfs_fs_type);
 	if (ret && fs_devices->total_devices == 1)
-		btrfs_free_stale_devices(device->devt, NULL);
+		btrfs_free_stale_devices(device->devt, NULL, false);
 
 	mutex_unlock(&uuid_mutex);
 	if (ret)

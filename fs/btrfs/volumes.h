@@ -681,7 +681,8 @@ int btrfs_open_devices(struct btrfs_fs_devices *fs_devices,
 		       blk_mode_t flags, void *holder);
 struct btrfs_device *btrfs_scan_one_device(const char *path, blk_mode_t flags,
 					   bool mount_arg_dev);
-int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device);
+int btrfs_free_stale_devices(dev_t devt, struct btrfs_device *skip_device,
+			     bool free_stray_single);
 int btrfs_forget_devices(dev_t devt);
 void btrfs_close_devices(struct btrfs_fs_devices *fs_devices);
 void btrfs_free_extra_devids(struct btrfs_fs_devices *fs_devices);
