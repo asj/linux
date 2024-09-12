@@ -303,6 +303,8 @@ enum btrfs_chunk_allocation_policy {
 enum btrfs_read_policy {
 	/* Use process PID to choose the stripe */
 	BTRFS_READ_POLICY_PID,
+	/* Balancing raid1 reads across all striped devices */
+	BTRFS_READ_POLICY_ROTATION,
 	BTRFS_NR_READ_POLICY,
 };
 
@@ -429,6 +431,8 @@ struct btrfs_fs_devices {
 
 	/* Policy used to read the mirrored stripes. */
 	enum btrfs_read_policy read_policy;
+
+	atomic_t total_reads;
 
 #ifdef CONFIG_BTRFS_DEBUG
 	/* Checksum mode - offload it or do it synchronously. */
