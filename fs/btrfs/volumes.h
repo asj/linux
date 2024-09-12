@@ -305,6 +305,8 @@ enum btrfs_read_policy {
 	BTRFS_READ_POLICY_PID,
 	/* Balancing raid1 reads across all striped devices */
 	BTRFS_READ_POLICY_ROTATION,
+	/* Use the lowest-latency device dynamically */
+	BTRFS_READ_POLICY_LATENCY,
 	BTRFS_NR_READ_POLICY,
 };
 
