@@ -307,6 +307,8 @@ enum btrfs_read_policy {
 	BTRFS_READ_POLICY_ROTATION,
 	/* Use the lowest-latency device dynamically */
 	BTRFS_READ_POLICY_LATENCY,
+	/* Read from the specific device */
+	BTRFS_READ_POLICY_DEVID,
 	BTRFS_NR_READ_POLICY,
 };
 
@@ -433,6 +435,7 @@ struct btrfs_fs_devices {
 
 	/* Policy used to read the mirrored stripes. */
 	enum btrfs_read_policy read_policy;
+	u64 read_devid;
 
 	atomic_t total_reads;
 
