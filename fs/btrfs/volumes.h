@@ -295,6 +295,12 @@ BTRFS_DEVICE_GETSET_FUNCS(total_bytes);
 BTRFS_DEVICE_GETSET_FUNCS(disk_total_bytes);
 BTRFS_DEVICE_GETSET_FUNCS(bytes_used);
 
+/* Btrfs on disk chunk allocation methods. */
+enum btrfs_device_allocation_method {
+	BTRFS_DEV_ALLOC_BY_FREE_SPACE,
+	BTRFS_DEV_ALLOC_NR,
+};
+
 enum btrfs_chunk_allocation_policy {
 	BTRFS_CHUNK_ALLOC_REGULAR,
 	BTRFS_CHUNK_ALLOC_ZONED,
@@ -439,6 +445,9 @@ struct btrfs_fs_devices {
 	struct kobject *devices_kobj;
 	struct kobject *devinfo_kobj;
 	struct completion kobj_unregister;
+
+	/* Method for selecting devices during chunk allocation */
+	enum btrfs_device_allocation_method device_alloc_method;
 
 	enum btrfs_chunk_allocation_policy chunk_alloc_policy;
 
