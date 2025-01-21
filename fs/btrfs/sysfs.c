@@ -1504,6 +1504,83 @@ static ssize_t btrfs_read_policy_store(struct kobject *kobj,
 }
 BTRFS_ATTR_RW(, read_policy, btrfs_read_policy_show, btrfs_read_policy_store);
 
+#ifdef CONFIG_BTRFS_EXPERIMENTAL
+static const char *btrfs_dev_alloc_name[] = {
+	"free-space",
+};
+
+static int btrfs_dev_alloc_name_to_enum(const char *str, s64 *value_ret)
+{
+	int ret;
+	char param[32] = { 0 };
+
+	/* If the policy is empty, point to the default at index 0. */
+	if (!str || strlen(str) == 0)
+		return 0;
+
+	strncpy(param, str, sizeof(param) - 1);
+
+	ret = btrfs_split_sysfs_arg(param, value_ret);
+	if (ret < 0)
+		return ret;
+
+	return sysfs_match_string(btrfs_dev_alloc_name, param);
+}
+
+static ssize_t btrfs_device_alloc_show(struct kobject *kobj,
+				       struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_devices *fs_devices = to_fs_devs(kobj);
+	enum btrfs_device_allocation_method dev_alloc;
+	ssize_t ret = 0;
+	int i;
+
+	dev_alloc = READ_ONCE(fs_devices->device_alloc_method);
+
+	for (i = 0; i < BTRFS_DEV_ALLOC_NR; i++) {
+		if (ret != 0)
+			ret += sysfs_emit_at(buf, ret, " ");
+
+		if (i == dev_alloc)
+			ret += sysfs_emit_at(buf, ret, "[");
+
+		ret += sysfs_emit_at(buf, ret, "%s", btrfs_dev_alloc_name[i]);
+
+		if (i == dev_alloc)
+			ret += sysfs_emit_at(buf, ret, "]");
+	}
+
+	ret += sysfs_emit_at(buf, ret, "\n");
+
+	return ret;
+
+}
+
+static ssize_t btrfs_device_alloc_store(struct kobject *kobj,
+					struct kobj_attribute *a,
+					const char *buf, size_t len)
+{
+	struct btrfs_fs_devices *fs_devices = to_fs_devs(kobj);
+	int index;
+	s64 value = -1;
+
+	index = btrfs_dev_alloc_name_to_enum(buf, &value);
+	if (index < 0)
+		return -EINVAL;
+
+	if (index != READ_ONCE(fs_devices->device_alloc_method)) {
+		WRITE_ONCE(fs_devices->device_alloc_method, index);
+		btrfs_info(fs_devices->fs_info, "read policy set to '%s'",
+			   btrfs_dev_alloc_name[index]);
+	}
+
+	return len;
+
+}
+BTRFS_ATTR_RW(, device_alloc, btrfs_device_alloc_show,
+	      btrfs_device_alloc_store);
+#endif
+
 static ssize_t btrfs_bg_reclaim_threshold_show(struct kobject *kobj,
 					       struct kobj_attribute *a,
 					       char *buf)
@@ -1602,6 +1679,7 @@ static const struct attribute *btrfs_attrs[] = {
 	BTRFS_ATTR_PTR(, temp_fsid),
 #ifdef CONFIG_BTRFS_EXPERIMENTAL
 	BTRFS_ATTR_PTR(, offload_csum),
+	BTRFS_ATTR_PTR(, device_alloc),
 #endif
 	NULL,
 };
