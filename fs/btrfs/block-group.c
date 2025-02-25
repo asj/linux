@@ -3840,17 +3840,17 @@ static int should_alloc_chunk(const struct btrfs_fs_info *fs_info,
 			      const struct btrfs_space_info *sinfo, int force)
 {
 	u64 bytes_used = btrfs_space_info_used(sinfo, false);
-	u64 thresh;
 
 	if (force == CHUNK_ALLOC_FORCE)
 		return 1;
 
 	/*
-	 * in limited mode, we want to have some free space up to
-	 * about 1% of the FS size.
+	 * In limited mode, we want to have some free space up to about 1% of
+	 * the FS size.
 	 */
 	if (force == CHUNK_ALLOC_LIMITED) {
-		thresh = btrfs_super_total_bytes(fs_info->super_copy);
+		u64 thresh = btrfs_super_total_bytes(fs_info->super_copy);
+
 		thresh = max_t(u64, SZ_64M, mult_perc(thresh, 1));
 
 		if (sinfo->total_bytes - bytes_used < thresh)
