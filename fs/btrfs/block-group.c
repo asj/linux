@@ -3837,7 +3837,8 @@ static void force_metadata_allocation(struct btrfs_fs_info *info)
 }
 
 static bool should_alloc_chunk(const struct btrfs_fs_info *fs_info,
-			       const struct btrfs_space_info *sinfo, int force)
+			       const struct btrfs_space_info *sinfo,
+			       enum btrfs_chunk_alloc_enum force)
 {
 	u64 bytes_used = btrfs_space_info_used(sinfo, false);
 
